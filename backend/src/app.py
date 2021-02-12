@@ -1,26 +1,30 @@
-from flask import Flask,request,jsonify
+from flask import Flask,request,jsonify,Response
 from  flask_pymongo import PyMongo,ObjectId
 from flask_cors import CORS
 
 app = Flask(__name__)
 
+CORS(app)
+
+
 app.config["MONGO_URI"] = "mongodb://localhost:27017/flask"
 mongo = PyMongo(app)
 
-CORS(app)
 
 db= mongo.db.users
+
 
 @app.route('/users', methods=['POST'])
 def create():
    
-    id = db.insert({
+    ID = db.insert({
         'name':request.json['name'],
         'email':request.json['email'],
         'password':request.json['password'],
     })
-    return jsonify(str(ObjectId(id)))
-    
+
+    response=jsonify(str(ObjectId(ID)))
+    return response
 
 @app.route('/users', methods=['GET'])
 def get():
@@ -33,11 +37,7 @@ def get():
             'password':doc['password']
         })
 
-    op = { i : users[i] for i in range(0, len(users) ) }
-  
-    print(op)
-
-    return jsonify(op)
+    return jsonify(users)
 
 @app.route('/user/<id>', methods=['GET'])
 def getOne(id):
